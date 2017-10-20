@@ -50,12 +50,27 @@ you will put the home directories under `/usr/home/FYRKAT`, which is also
 available under `/home/FYRKAT` due to default symlinks in FreeBSD.
 
 Create the dataset, make sure you're root for this one.  These commands will
-work fine on a fresh FreeBSD.
+work fine on a fresh FreeBSD, but take care if you've made your own
+modifications regarding home directories.
 
 	# mv /usr/home /usr/home.old
 	# zfs create -o mountpoint=/usr/home zroot/home
 	# mv /usr/home.old/* /usr/home
 	# zfs create -o canmount=off -o aclmode=passthrough -o aclinherit=passthrough -o normalization=formD zroot/home/FYRKAT
+
+The moving is to preserve any existing home directories, for example the one you
+made during the installation.  The ACL settings are so that it is possible to
+set ACLs, which Samba needs to apply Windows ACLS.  The normalization is so that
+Unicode in filenames is normalized, so you can't end up in a situation where you
+have two files with seemingly the same filename but one of them you can't get
+rid of.  `formD` means that filenames that visually look identical are identical.
+Another option would be `formKC`, which would make filenames that are logically
+identical are identical.  For example, under `formKC`, `Office` and `Oﬃce` are
+identical, while under `formD` they are not.
+
+The volume containing the home directories for AD users doesn't need to be
+mounted, hence the `-o canmount=off`.  It is not inheritable, so the actual home
+directories *will* be mountable.
 
 
 ## Samba configuration
