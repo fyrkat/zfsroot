@@ -1,0 +1,70 @@
+#!/bin/sh
+set -e -o pipefail \
+<<Copyright 2017 Jørn Åne <@jornane.no>
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation and/or
+other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its contributors
+may be used to endorse or promote products derived from this software without
+specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+Copyright
+
+zfsparent="$1"
+user="$2"
+
+if test -z "$zfsparent" -o -z "$user"
+then
+	echo usage: $0 zfsparent user >&2
+	cat >&2 <<EOF
+Configuration for Samba
+=======================
+
+[homes]
+root preexec = /bin/sh -c "/usr/local/libexec/zfs-mkhomedir zroot/home/FYRKAT %U"
+
+# Configuration for PAM
+=======================
+
+# session
+session required pam_exec.so /bin/sh -c "/usr/local/libexec/zfs-mkhomedir zroot/home/FYRKAT $PAM_USER"
+EOF
+	exit 2
+fi
+
+homedir="$(getent passwd "$user" | cut -d: -f6)"
+group="$(getent passwd "$user" | cut -d: -f4)"
+zfs="$zfsparent/$user"
+test -d "$homedir" && exit 0
+zfs list "$zfsparent" >/dev/null || exit 1
+zfs list "$zfs" >/dev/null 2>&1 && exit 0 || true
+
+zfs create "$zfs"
+zfs allow -u "$user" diff,hold,release,send,snapdir "$zfs"
+
+ls /usr/share/skel | while read file
+do
+	source="/usr/share/skel/$file"
+	target="$homedir/$(echo "$file" | sed -e 's/^dot\././')"
+	cp -a "$source" "$target"
+done
+chown -R "$user:$group" "$homedir"
