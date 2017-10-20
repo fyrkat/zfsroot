@@ -69,6 +69,8 @@ section to the following:
 		browseable = no
 		writable = yes
 
+		valid users = @"domain users"
+		invalid users = root administrator
 		root preexec = /bin/sh -c "/usr/local/libexec/zfs-mkhomedir zroot/home/FYRKAT %U"
 
 		# Needed for Folder Redirection GPO
