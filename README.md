@@ -39,6 +39,7 @@ it is available for both Samba and PAM to be run.
 
 	# fetch -o /usr/local/libexec/zfs-mkhomedir \
 	> https://github.com/fyrkat/zfsroot/raw/master/zfs-mkhomedir
+	# chmod +x /usr/local/libexec/zfs-mkhomedir
 
 
 ## ZFS
