@@ -38,7 +38,7 @@ The shell script must be copied to `/usr/local/libexec/zfs-mkhomedir`, so that
 it is available for both Samba and PAM to be run.
 
 	# fetch -o /usr/local/libexec/zfs-mkhomedir \
-	> https://github.com/fyrkat/zfsroot/raw/master/zfs-mkhomedir
+		https://github.com/fyrkat/zfsroot/raw/master/zfs-mkhomedir
 	# chmod +x /usr/local/libexec/zfs-mkhomedir
 
 
@@ -62,11 +62,23 @@ modifications regarding home directories.
 
 ### To optimize for FreeBSD/Linux use
 
-	# zfs create -o canmount=off -o aclmode=passthrough -o aclinherit=passthrough -o normalization=formD -o casesensitivity=sensitive zroot/home/FYRKAT
+	# zfs create \
+		-o canmount=off \
+		-o aclmode=passthrough \
+		-o aclinherit=passthrough \
+		-o normalization=formD \
+		-o casesensitivity=sensitive \
+		zroot/home/FYRKAT
 
 ### To optimize for Windows use
 
-	# zfs create -o canmount=off -o aclmode=passthrough -o aclinherit=passthrough -o normalization=formKC -o casesensitivity=insensitive zroot/home/FYRKAT
+	# zfs create \
+		-o canmount=off \
+		-o aclmode=passthrough \
+		-o aclinherit=passthrough \
+		-o normalization=formKC \
+		-o casesensitivity=insensitive \
+		zroot/home/FYRKAT
 
 ### Background information and explanation
 
