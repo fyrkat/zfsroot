@@ -54,10 +54,21 @@ Create the dataset, make sure you're root for this one.  These commands will
 work fine on a fresh FreeBSD, but take care if you've made your own
 modifications regarding home directories.
 
+### Preparation
+
 	# mv /usr/home /usr/home.old
 	# zfs create -o mountpoint=/usr/home zroot/home
 	# mv /usr/home.old/* /usr/home
-	# zfs create -o canmount=off -o aclmode=passthrough -o aclinherit=passthrough -o normalization=formD zroot/home/FYRKAT
+
+### To optimize for FreeBSD/Linux use
+
+	# zfs create -o canmount=off -o aclmode=passthrough -o aclinherit=passthrough -o normalization=formD -o casesensitivity=sensitive zroot/home/FYRKAT
+
+### To optimize for Windows use
+
+	# zfs create -o canmount=off -o aclmode=passthrough -o aclinherit=passthrough -o normalization=formKC -o casesensitivity=insensitive zroot/home/FYRKAT
+
+### Background information and explanation
 
 The moving is to preserve any existing home directories, for example the one you
 made during the installation.  The ACL settings are so that it is possible to
@@ -68,6 +79,14 @@ rid of.  `formD` means that filenames that visually look identical are identical
 Another option would be `formKC`, which would make filenames that are logically
 identical are identical.  For example, under `formKC`, `Office` and `Oﬃce` are
 identical, while under `formD` they are not.
+
+Windows is case insensitive, while most \*NIX systems are case sensitive.
+Choose the case sensitivity settings that you think most users will benefit
+from, although you can favour FreeBSD/Linux if you are unsure, because Samba
+will take care of Windows' case insensitivity anyway.
+
+Generally, it makes sense to combine `formKC` with `insensitive`, or `formD`
+with `sensitive`.
 
 The volume containing the home directories for AD users doesn't need to be
 mounted, hence the `-o canmount=off`.  It is not inheritable, so the actual home
