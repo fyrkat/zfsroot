@@ -70,7 +70,7 @@ modifications regarding home directories.
 		-o casesensitivity=sensitive \
 		zroot/home/FYRKAT
 
-### To optimize for Windows use
+### To optimize for Windows/macOS use
 
 	# zfs create \
 		-o canmount=off \
